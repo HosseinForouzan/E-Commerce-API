@@ -14,20 +14,29 @@ func main() {
 	userpsql := psqluser.New(psql)
 	fmt.Println(userpsql)
 
-	user := param.RegisterRequest{
-		Name: "Hossein",
-		Email: "Hossein",
-		Password: "Hossein",
-		PhoneNumber: "0912",
-	}
-	userSVc := userservice.New(psql)
+		userSVc := userservice.New(userpsql)
 
-	r, err := userSVc.Register(user)
-	if err != nil{
-		fmt.Errorf("%W", err)
+
+	// user := param.RegisterRequest{
+	// 	Name: "Hossein",
+	// 	Email: "Hossein",
+	// 	Password: "Hossein",
+	// 	PhoneNumber: "0912",
+	// }
+
+	// r, err := userSVc.Register(user)
+	// if err != nil{
+	// 	fmt.Errorf("%W", err)
+	// }
+
+	// fmt.Println(r)
+
+	l, err := userSVc.Login(param.LoginRequest{Email: "Hossein", Password: "Hossein"})
+	if err != nil {
+		fmt.Errorf(err.Error())
 	}
 
-	fmt.Println(r)
+	fmt.Println(l)
 
 
 }

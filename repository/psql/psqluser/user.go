@@ -2,6 +2,7 @@ package psqluser
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 
 	"github.com/HosseinForouzan/E-Commerce-API/entity"
@@ -17,6 +18,25 @@ func (d *DB) Register(user entity.User) (entity.User, error) {
 	}
 
 	user.ID = id
+
+	return user, nil
+}
+
+func (d *DB) GetUserByEmail(email string) (entity.User, error) {
+	var user entity.User
+	var phone sql.NullString
+
+	user.PhoneNumber = ""
+	err := d.conn.Conn().QueryRow(context.Background(),
+									"SELECT * FROM users WHERE email=$1", email).Scan(
+									&user.ID, &user.Name, &user.Password, &phone, &user.Email, &user.CreatedAt, &user.UpdatedAt)	
+	if err != nil {
+		return entity.User{}, fmt.Errorf("can't retrieve user by email %w", err)
+	}
+
+	if phone.Valid {
+		user.PhoneNumber = phone.String
+	}
 
 	return user, nil
 }
