@@ -59,5 +59,5 @@ func (s Service) Login(req param.LoginRequest) (param.LoginResponse, error) {
 
 	
 
-		return param.LoginResponse{User: param.UserInfo{ID:user.ID, Email: user.Email, Name: user.Name}}, nil
+		return param.LoginResponse{User: param.UserInfo{ID:user.ID, Email: user.Email, Name: user.Name, PhoneNumber: user.PhoneNumber}}, nil
 }
