@@ -14,12 +14,17 @@ type Repository interface {
 	GetUserByID(id uint) (entity.User, error)
 }
 
+type AuthGenerator interface {
+	CreateAccessToken(user entity.User) (string, error)
+	CreateRefreshToken(user entity.User) (string, error)
+}
 type Service struct {
 	repo Repository
+	auth AuthGenerator
 }
 
-func New(repo Repository) Service {
-	return Service{repo: repo}
+func New(repo Repository, auth AuthGenerator) Service {
+	return Service{repo: repo, auth: auth}
 }
 
 func (s Service) Register(req param.RegisterRequest) (param.RegisterRespone, error) {	
@@ -58,9 +63,18 @@ func (s Service) Login(req param.LoginRequest) (param.LoginResponse, error) {
 			return param.LoginResponse{}, fmt.Errorf("email or password is incorrect.")
 		}
 
+		accessToken, err := s.auth.CreateAccessToken(user)
+		if err != nil {
+			return param.LoginResponse{}, fmt.Errorf("unexpected error %w", err)
+		}
+
+		refreshToken, err := s.auth.CreateRefreshToken(user)
+		if err != nil {
+			return param.LoginResponse{}, fmt.Errorf("unexpted error %w", err)
+		}
 	
 
-		return param.LoginResponse{User: param.UserInfo{ID:user.ID, Email: user.Email, Name: user.Name, PhoneNumber: user.PhoneNumber}}, nil
+		return param.LoginResponse{AccessToken: accessToken, RefreshToken: refreshToken}, nil
 }
 
 func (s Service) Profile(req param.ProfileRequest) (param.ProfileResponse, error) {
@@ -71,3 +85,4 @@ func (s Service) Profile(req param.ProfileRequest) (param.ProfileResponse, error
 
 	return param.ProfileResponse{Name: user.Name}, nil
 }
+
