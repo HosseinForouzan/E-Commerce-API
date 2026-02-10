@@ -11,6 +11,7 @@ import (
 type Repository interface {
 	Register(user entity.User) (entity.User, error)
 	GetUserByEmail(email string) (entity.User, error)
+	GetUserByID(id uint) (entity.User, error)
 }
 
 type Service struct {
@@ -60,4 +61,13 @@ func (s Service) Login(req param.LoginRequest) (param.LoginResponse, error) {
 	
 
 		return param.LoginResponse{User: param.UserInfo{ID:user.ID, Email: user.Email, Name: user.Name, PhoneNumber: user.PhoneNumber}}, nil
+}
+
+func (s Service) Profile(req param.ProfileRequest) (param.ProfileResponse, error) {
+	user, err := s.repo.GetUserByID(req.UserID)
+	if err != nil {
+		return param.ProfileResponse{}, fmt.Errorf("can't retrieve user id %w", err)
+	}
+
+	return param.ProfileResponse{Name: user.Name}, nil
 }

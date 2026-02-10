@@ -40,3 +40,22 @@ func (d *DB) GetUserByEmail(email string) (entity.User, error) {
 
 	return user, nil
 }
+
+func (d *DB) GetUserByID(id uint) (entity.User, error) {
+	var user entity.User
+	var phone sql.NullString
+
+	err := d.conn.Conn().QueryRow(context.Background(),
+									"SELECT * FROM users WHERE id=$1", id).Scan(
+									&user.ID, &user.Name, &user.Password, &phone, &user.Email, &user.CreatedAt, &user.UpdatedAt)	
+	if err != nil {
+		return entity.User{}, fmt.Errorf("can't retrieve user by email %w", err)
+	}
+	if phone.Valid {
+		user.PhoneNumber = phone.String
+	}
+
+
+	return user, nil
+}
+

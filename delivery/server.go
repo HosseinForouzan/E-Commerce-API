@@ -31,6 +31,7 @@ func (s Server) SetRoutes() {
 	e.GET("/healthcheck", s.HealthCheck)
 	e.POST("register", s.UserRegister)
 	e.POST("/login", s.UserLogin)
+	e.POST("/profile/:id", s.UserProfile)
 
 	// Start server
 	if err := e.Start(":8080"); err != nil && !errors.Is(err, http.ErrServerClosed) {
