@@ -1,3 +1,4 @@
+-- +migrate Up
 CREATE TABLE users(
     id SERIAL PRIMARY KEY,
     name VARCHAR(255),
@@ -7,3 +8,6 @@ CREATE TABLE users(
     created_at TIMESTAMP,
     updated_at TIMESTAMP
 );
+
+-- +migrate Down
+DROP TABLE users;

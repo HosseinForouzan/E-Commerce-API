@@ -8,7 +8,16 @@ import (
 	pgx "github.com/jackc/pgx/v5/pgxpool"
 )
 
+type Config struct {
+	Username string
+	Password string
+	Port int
+	Host string
+	DBName string
+} 
+
 type PsqlDB struct {
+	config Config
 	db *pgx.Pool
 }
 
@@ -16,8 +25,9 @@ func (p *PsqlDB) Conn() *pgx.Pool {
 	return p.db
 }
 
-func New() *PsqlDB {
-		urlExample := "postgres://myuser:secret@localhost:5431/ecommerce_db"
+func New(config Config) *PsqlDB {
+	// urlExample := "postgres://myuser:secret@localhost:5431/ecommerce_db"
+	urlExample := fmt.Sprintf("postgres://%s:%s@%s:%d/%s", config.Username, config.Password, config.Host, config.Port, config.DBName)
 	db, err := pgx.New(context.Background(), urlExample)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
@@ -26,7 +36,7 @@ func New() *PsqlDB {
 
 	fmt.Println("OK")
 
-	return &PsqlDB{db: db}
+	return &PsqlDB{db: db, config: config}
 
 	
 }
