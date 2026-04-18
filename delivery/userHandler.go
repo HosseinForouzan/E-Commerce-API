@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/HosseinForouzan/E-Commerce-API/param"
+	"github.com/HosseinForouzan/E-Commerce-API/service/authservice"
 	"github.com/labstack/echo/v4"
 )
 
@@ -36,18 +37,13 @@ func (s Server) UserLogin(c echo.Context) error {
 }
 
 func (s Server) UserProfile(c echo.Context) error {
-	authToken := c.Request().Header.Get("Authorization")
-	claims, err := s.authSvc.ParseToken(authToken)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, "token is not valid.")
-	}
-	
+	claims := c.Get("claims").(*authservice.Claims)
+
 	resp, err := s.userSvc.Profile(param.ProfileRequest{UserID: claims.UserID})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, resp)
-
 
 }
