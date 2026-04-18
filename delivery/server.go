@@ -8,7 +8,7 @@ import (
 
 	"github.com/HosseinForouzan/E-Commerce-API/config"
 	"github.com/HosseinForouzan/E-Commerce-API/service/userservice"
-	"github.com/HosseinForouzan/E-Commerce-API/service/userservice/authservice"
+	"github.com/HosseinForouzan/E-Commerce-API/service/authservice"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -37,9 +37,9 @@ func (s Server) SetRoutes() {
 
 	// Routes
 	e.GET("/healthcheck", s.HealthCheck)
-	e.POST("register", s.UserRegister)
+	e.POST("/register", s.UserRegister)
 	e.POST("/login", s.UserLogin)
-	e.POST("/profile", s.UserProfile)
+	e.GET("/profile", s.UserProfile)
 
 	// Start server
 	if err := e.Start(fmt.Sprintf(":%d", s.config.HttpServer.Port)); err != nil && !errors.Is(err, http.ErrServerClosed) {

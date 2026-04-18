@@ -7,8 +7,8 @@ import (
 	"github.com/HosseinForouzan/E-Commerce-API/delivery"
 	"github.com/HosseinForouzan/E-Commerce-API/repository/psql"
 	"github.com/HosseinForouzan/E-Commerce-API/repository/psql/psqluser"
+	"github.com/HosseinForouzan/E-Commerce-API/service/authservice"
 	"github.com/HosseinForouzan/E-Commerce-API/service/userservice"
-	"github.com/HosseinForouzan/E-Commerce-API/service/userservice/authservice"
 )
 
 const(
@@ -22,24 +22,27 @@ const(
 
 func main() {
 
-	cfg := config.Config{
-		HttpServer: config.HttpServer{Port: 8080},
-		Auth: authservice.Config{
-			SignKey: JWTSignKey,
-			AccessExpirationTime: AccessTokenExpirationDuration,
-			RefreshExpirationTime: RefreshTokenExpirationDuration,
-			AccessSubject: AccessTokenSubject,
-			RefreshSubject: RefreshTokenSubject,
-		},
-		Psql: psql.Config{
-			Username: "myuser",
-			Password: "secret",
-			Port: 5431,
-			Host: "localhost",
-			DBName: "ecommerce_db",
-		},
+	cfg := config.Load("config.yml")
 
-	}
+
+	// cfg := config.Config{
+	// 	HttpServer: config.HttpServer{Port: 8080},
+	// 	Auth: authservice.Config{
+	// 		SignKey: JWTSignKey,
+	// 		AccessExpirationTime: AccessTokenExpirationDuration,
+	// 		RefreshExpirationTime: RefreshTokenExpirationDuration,
+	// 		AccessSubject: AccessTokenSubject,
+	// 		RefreshSubject: RefreshTokenSubject,
+	// 	},
+	// 	Psql: psql.Config{
+	// 		Username: "myuser",
+	// 		Password: "secret",
+	// 		Port: 5431,
+	// 		Host: "localhost",
+	// 		DBName: "ecommerce_db",
+	// 	},
+
+	// }
 
 
 

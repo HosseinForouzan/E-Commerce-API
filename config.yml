@@ -1,0 +1,14 @@
+---
+type: yml
+auth:
+  sign_key: jwt_secret
+
+http_server:
+  port: 8088
+
+psql:
+  port: 5431
+  host: localhost
+  db_name: ecommerce_db
+  username: myuser
+  password: secret

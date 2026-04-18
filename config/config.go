@@ -2,15 +2,15 @@ package config
 
 import (
 	"github.com/HosseinForouzan/E-Commerce-API/repository/psql"
-	"github.com/HosseinForouzan/E-Commerce-API/service/userservice/authservice"
+	"github.com/HosseinForouzan/E-Commerce-API/service/authservice"
 )
 
 type HttpServer struct {
-	Port int
+	Port int	`koanf:"port"`
 }
 
 type Config struct {
-	HttpServer HttpServer
-	Auth authservice.Config
-	Psql psql.Config
+	HttpServer HttpServer	`koanf:"http_server"`
+	Auth authservice.Config	`koanf:"auth"`
+	Psql psql.Config	`koanf:"psql"`
 }
