@@ -35,6 +35,7 @@ func (s Service) Register(req param.RegisterRequest) (param.RegisterRespone, err
 		Password: req.Password,
 		PhoneNumber: req.PhoneNumber,
 		Email: req.Email,
+		Role: entity.RoleUser,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}

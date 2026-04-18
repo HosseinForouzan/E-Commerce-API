@@ -29,14 +29,15 @@ func New(cfg Config) Service {
 type Claims struct {
 	jwt.RegisteredClaims
 	UserID uint        `json:"user_id"`
+	Role string `json:"role"`
 }
 
 func (s Service) CreateAccessToken(user entity.User) (string, error) {
-	return s.createToken(user.ID, s.config.AccessSubject, s.config.AccessExpirationTime)
+	return s.createToken(user.ID,user.Role, s.config.AccessSubject, s.config.AccessExpirationTime)
 }
 
 func (s Service) CreateRefreshToken(user entity.User) (string, error) {
-	return s.createToken(user.ID, s.config.RefreshSubject, s.config.RefreshExpirationTime)
+	return s.createToken(user.ID, user.Role, s.config.RefreshSubject, s.config.RefreshExpirationTime)
 }
 
 func (s Service) ParseToken(bearerToken string) (*Claims, error) {
@@ -58,7 +59,7 @@ func (s Service) ParseToken(bearerToken string) (*Claims, error) {
 	}
 }
 
-func (s Service) createToken(userID uint, subject string, expireDuration time.Duration) (string, error) {
+func (s Service) createToken(userID uint, role entity.Role, subject string, expireDuration time.Duration) (string, error) {
 	// create a signer for rsa 256
 	// TODO - replace with rsa 256 RS256 - https://github.com/golang-jwt/jwt/blob/main/http_example_test.go
 
@@ -69,6 +70,7 @@ func (s Service) createToken(userID uint, subject string, expireDuration time.Du
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(expireDuration)),
 		},
 		UserID: userID,
+		Role: string(role),
 	}
 
 	// TODO - add sign method to config

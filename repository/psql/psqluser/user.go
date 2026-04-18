@@ -13,7 +13,7 @@ func (d *DB) Register(user entity.User) (entity.User, error) {
 
 	err := d.conn.Conn().QueryRow(context.Background(), 
 							`INSERT INTO users(name,password,email, phone_number ,created_at,updated_at)
-							VALUES($1,$2,$3,$4,$5, $6) RETURNING id`, user.Name, user.Password, user.Email, user.PhoneNumber, user.CreatedAt, user.UpdatedAt).Scan(&id)
+							VALUES($1,$2,$3,$4,$5, $6, $7) RETURNING id`, user.Name, user.Password, user.Email, user.PhoneNumber, user.CreatedAt, user.UpdatedAt,  user.Role).Scan(&id)
 	if err != nil {
 		return entity.User{}, fmt.Errorf("can't execute query %w", err)
 	}
@@ -29,7 +29,7 @@ func (d *DB) GetUserByEmail(email string) (entity.User, error) {
 
 	err := d.conn.Conn().QueryRow(context.Background(),
 									"SELECT * FROM users WHERE email=$1", email).Scan(
-									&user.ID, &user.Name, &user.Password, &phone, &user.Email, &user.CreatedAt, &user.UpdatedAt)	
+									&user.ID, &user.Name, &user.Password, &phone, &user.Email, &user.CreatedAt, &user.UpdatedAt, &user.Role)	
 	if err != nil {
 		return entity.User{}, fmt.Errorf("can't retrieve user by email %w", err)
 	}
@@ -47,7 +47,7 @@ func (d *DB) GetUserByID(id uint) (entity.User, error) {
 
 	err := d.conn.Conn().QueryRow(context.Background(),
 									"SELECT * FROM users WHERE id=$1", id).Scan(
-									&user.ID, &user.Name, &user.Password, &phone, &user.Email, &user.CreatedAt, &user.UpdatedAt)	
+									&user.ID, &user.Name, &user.Password, &phone, &user.Email, &user.CreatedAt, &user.UpdatedAt, &user.Role)	
 	if err != nil {
 		return entity.User{}, fmt.Errorf("can't retrieve user by email %w", err)
 	}
