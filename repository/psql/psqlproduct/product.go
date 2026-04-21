@@ -33,3 +33,14 @@ func (d *DB) GetProducts(p param.ProductRequest) ([] entity.Product, error){
 
 	return products, nil
 }
+
+func (d *DB) GetProductByID(id uint8) (entity.Product, error) {
+	var product entity.Product
+	err := d.conn.Conn().QueryRow(context.Background(), "SELECT * FROM products WHERE id=$1", id).
+	Scan(&product.ID, &product.Name, &product.Description, &product.Price, &product.Stock, &product.CategoryID, &product.CreatedAt, &product.UpdatedAt)
+	if err != nil {
+		return entity.Product{}, fmt.Errorf("Can't get product by id: %w", err)
+	}
+
+	return product, nil
+}

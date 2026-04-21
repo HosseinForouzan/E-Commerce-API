@@ -10,3 +10,12 @@ type ProductRequest struct {
 type ProductResponse struct {
 	Product [] entity.Product
 }
+
+type ProductByIDRequest struct {
+	ProductID uint8
+}
+
+type ProductByIDResponse struct {
+	Product entity.Product
+}
+

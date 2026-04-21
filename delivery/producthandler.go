@@ -23,3 +23,16 @@ func (s Server) ListProducts(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, resp)
 }
+
+func (s Server) GetProductByID(c echo.Context) error {
+	var req param.ProductByIDRequest
+	id := c.Param("id")
+	idInt, _ := strconv.Atoi(id)
+	req.ProductID = uint8(idInt)
+	resp, err := s.productSvc.ProductByID(req)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+
+	return c.JSON(http.StatusOK, resp)
+}

@@ -9,6 +9,7 @@ import (
 
 type Repository interface {
 	GetProducts(p param.ProductRequest) ([] entity.Product, error)
+	GetProductByID(id uint8) (entity.Product, error)
 }
 
 type Service struct {
@@ -30,4 +31,13 @@ func (s Service) Product(req param.ProductRequest) (param.ProductResponse, error
 		Product: products,
 	}, nil
 
+}
+
+func (s Service) ProductByID(req param.ProductByIDRequest) (param.ProductByIDResponse, error) {
+	product, err := s.repo.GetProductByID(req.ProductID)
+	if err != nil {
+		return param.ProductByIDResponse{}, fmt.Errorf(err.Error())
+	}
+
+	return param.ProductByIDResponse{Product: product}, nil
 }

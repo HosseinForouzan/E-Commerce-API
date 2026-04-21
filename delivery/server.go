@@ -46,6 +46,7 @@ func (s Server) SetRoutes() {
 	e.GET("/profile", s.UserProfile, mw.Auth(s.authSvc, s.config.Auth))
 
 	e.GET("/products", s.ListProducts)
+	e.GET("/products/:id", s.GetProductByID)
 
 
 
