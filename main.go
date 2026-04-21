@@ -6,8 +6,10 @@ import (
 	"github.com/HosseinForouzan/E-Commerce-API/config"
 	"github.com/HosseinForouzan/E-Commerce-API/delivery"
 	"github.com/HosseinForouzan/E-Commerce-API/repository/psql"
+	psqlaccesscontrol "github.com/HosseinForouzan/E-Commerce-API/repository/psql/psqlAccessControl"
 	"github.com/HosseinForouzan/E-Commerce-API/repository/psql/psqlproduct"
 	"github.com/HosseinForouzan/E-Commerce-API/repository/psql/psqluser"
+	"github.com/HosseinForouzan/E-Commerce-API/service/authorizationservice"
 	"github.com/HosseinForouzan/E-Commerce-API/service/authservice"
 	"github.com/HosseinForouzan/E-Commerce-API/service/productservice"
 	"github.com/HosseinForouzan/E-Commerce-API/service/userservice"
@@ -48,23 +50,25 @@ func main() {
 
 
 
-	authSvc, userSvc, productSvc := setupServices(cfg)
+	authSvc, userSvc, productSvc, authorizationSvc := setupServices(cfg)
 
-	server := delivery.New(cfg, authSvc, userSvc, productSvc)
+	server := delivery.New(cfg, authSvc, userSvc, productSvc, authorizationSvc)
 	server.SetRoutes()
 
 }
 
 
-func setupServices(cfg config.Config) (authservice.Service, userservice.Service, productservice.Service) {
+func setupServices(cfg config.Config) (authservice.Service, userservice.Service, productservice.Service, authorizationservice.Service) {
 	authSvc := authservice.New(cfg.Auth)
 
 	psql := psql.New(cfg.Psql)
 	PsqlUserRepo := psqluser.New(psql)
 	PsqlProductRepo := psqlproduct.New(psql)
+	psqlAccessRepo := psqlaccesscontrol.New(psql)
 
 	userSvc := userservice.New(PsqlUserRepo, authSvc)
 	productSvc := productservice.New(PsqlProductRepo)
+	authorizationSvc := authorizationservice.New(psqlAccessRepo)
 
-	return authSvc, userSvc, productSvc
+	return authSvc, userSvc, productSvc, authorizationSvc
 }

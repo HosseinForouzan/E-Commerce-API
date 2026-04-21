@@ -8,6 +8,7 @@ import (
 
 	"github.com/HosseinForouzan/E-Commerce-API/config"
 	mw "github.com/HosseinForouzan/E-Commerce-API/delivery/middleware"
+	"github.com/HosseinForouzan/E-Commerce-API/service/authorizationservice"
 	"github.com/HosseinForouzan/E-Commerce-API/service/authservice"
 	"github.com/HosseinForouzan/E-Commerce-API/service/productservice"
 	"github.com/HosseinForouzan/E-Commerce-API/service/userservice"
@@ -20,14 +21,16 @@ type Server struct {
 	authSvc authservice.Service
 	userSvc userservice.Service
 	productSvc productservice.Service
+	authorizationSvc authorizationservice.Service
 }
 
-func New(config config.Config ,authSvc authservice.Service, userSvc userservice.Service, productSvc productservice.Service) Server {
+func New(config config.Config ,authSvc authservice.Service, userSvc userservice.Service, productSvc productservice.Service, authorizationSvc authorizationservice.Service) Server {
 	return Server{
 		config:config,
 		 authSvc: authSvc,
 		  userSvc:  userSvc,
 		  productSvc: productSvc,
+		  authorizationSvc: authorizationSvc,
 		
 		}
 }
@@ -40,7 +43,7 @@ func (s Server) SetRoutes() {
 	e.Use(middleware.Recover()) // recover panics as errors for proper error handling
 
 	// Routes
-	e.GET("/healthcheck", s.HealthCheck, mw.RequireRole("admin"))
+	e.GET("/healthcheck", s.HealthCheck, mw.Auth(s.authSvc, s.config.Auth), mw.AccessCheck(s.authorizationSvc))
 	e.POST("/register", s.UserRegister)
 	e.POST("/login", s.UserLogin)
 	e.GET("/profile", s.UserProfile, mw.Auth(s.authSvc, s.config.Auth))
