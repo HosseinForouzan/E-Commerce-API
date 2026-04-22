@@ -1,6 +1,6 @@
 package entity
 
 type Category struct {
-	ID uint8
+	ID uint
 	Name string
 }

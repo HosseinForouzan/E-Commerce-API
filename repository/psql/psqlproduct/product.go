@@ -34,7 +34,7 @@ func (d *DB) GetProducts(p param.ProductRequest) ([] entity.Product, error){
 	return products, nil
 }
 
-func (d *DB) GetProductByID(id uint8) (entity.Product, error) {
+func (d *DB) GetProductByID(id uint) (entity.Product, error) {
 	var product entity.Product
 	err := d.conn.Conn().QueryRow(context.Background(), "SELECT * FROM products WHERE id=$1", id).
 	Scan(&product.ID, &product.Name, &product.Description, &product.Price, &product.Stock, &product.CategoryID, &product.CreatedAt, &product.UpdatedAt)
@@ -43,4 +43,56 @@ func (d *DB) GetProductByID(id uint8) (entity.Product, error) {
 	}
 
 	return product, nil
+}
+
+func (d *DB) CreateProduct(p entity.Product) (entity.Product, error) {
+	var id uint
+
+	err := d.conn.Conn().QueryRow(context.Background(),
+									`INSERT INTO products(name,description,price,stock,category_id) 
+									 VALUES($1,$2,$3,$4,$5) RETURNING id`, p.Name, p.Description, p.Price, p.Stock, p.CategoryID).Scan(&id)
+	if err != nil {
+		return entity.Product{}, fmt.Errorf("Can't insert product: %w", err)
+	}	
+
+	
+	p.ID = id
+
+	return p, nil
+
+}
+
+func (d *DB) CreateCategory(c entity.Category) (entity.Category, error) {
+	var id uint
+
+	err := d.conn.Conn().QueryRow(context.Background(), 
+									`INSERT INTO categories(name) VALUES($1) RETURNING id`, c.Name).Scan(&id)
+	if err != nil {
+		return entity.Category{}, fmt.Errorf("can't insert category %w", err)
+	}							
+
+	c.ID = id
+	
+	return c, err
+}
+
+func (d *DB) UpdateProduct(p entity.Product) (entity.Product, error) {
+	fmt.Println(p)
+	_, err := d.conn.Conn().Exec(context.Background(),
+									`UPDATE products SET name=$1, description=$2, price=$3, stock=$4,category_id=$5 WHERE id=$6`,
+									p.Name, p.Description, p.Price, p.Stock, p.CategoryID, p.ID)
+	if err != nil {
+		return entity.Product{}, fmt.Errorf("Can't update product: %w", err)
+	}
+
+	return p, nil
+}
+
+func (d * DB) DeleteProduct(id uint) error {
+	_, err := d.conn.Conn().Exec(context.Background(), "DELETE FROM products WHERE id = $1", id)
+	if err != nil {
+		return fmt.Errorf("can't delete product: %w", err)
+	}
+
+	return nil
 }

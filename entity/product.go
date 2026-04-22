@@ -3,12 +3,12 @@ package entity
 import "time"
 
 type Product struct {
-	ID          uint8
+	ID          uint
 	Name        string
 	Description string
-	Price       int
-	Stock       int
-	CategoryID  uint8
+	Price       uint
+	Stock       uint
+	CategoryID  uint
 	CreatedAt   time.Time
 	UpdatedAt time.Time
 }

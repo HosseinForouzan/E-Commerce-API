@@ -51,6 +51,11 @@ func (s Server) SetRoutes() {
 	e.GET("/products", s.ListProducts)
 	e.GET("/products/:id", s.GetProductByID)
 
+	e.POST("/products", s.AddProduct)
+	e.POST("/category", s.AddCategory)
+	e.PUT("/products/:id", s.UpdateProduct)
+	e.DELETE("/products/:id", s.DeleteProduct)
+
 
 
 
