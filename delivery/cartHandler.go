@@ -2,6 +2,7 @@ package delivery
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/HosseinForouzan/E-Commerce-API/param"
 	"github.com/HosseinForouzan/E-Commerce-API/service/authservice"
@@ -35,4 +36,60 @@ func (s Server) GetCart(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, resp)
+}
+
+func (s Server) UpdateCart(c echo.Context) error {
+	var req param.UpdateItemRequest
+	claims := c.Get("claims").(*authservice.Claims)
+	productID := c.Param("productId")
+	ProductIDUint, _ := strconv.Atoi(productID)
+
+	if err := c.Bind(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+
+	req.UserID = claims.UserID
+	req.ProductID = uint(ProductIDUint)
+	
+	err := s.cartSvc.UpdateItem(req)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{"message": "item updated."})
+
+}
+
+func (s Server) DeleteCart(c echo.Context) error {
+	var req param.DeleteItemRequest
+	claims := c.Get("claims").(*authservice.Claims)
+	productID := c.Param("productId")
+	ProductIDUint, _ := strconv.Atoi(productID)
+
+	if err := c.Bind(&req); err != nil{
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+
+	req.UserID = claims.UserID
+	req.ProductID = uint(ProductIDUint)
+
+	err := s.cartSvc.DeleteItem(req)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+
+	return c.JSON(http.StatusNoContent, "")
+}
+
+func (s Server) ClearCart(c echo.Context) error {
+	claims := c.Get("claims").(*authservice.Claims)
+
+	err := s.cartSvc.Clear(claims.UserID)
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+
+	return c.JSON(http.StatusNoContent, "")
+
 }

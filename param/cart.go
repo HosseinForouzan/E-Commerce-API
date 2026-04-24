@@ -9,7 +9,14 @@ type AddItemRequest struct {
 
 
 type UpdateItemRequest struct {
+	UserID uint `json:"user_id"`
+	ProductID uint `json:"product_id"`
 	Quantity uint `json:"quantity"`
+}
+
+type DeleteItemRequest struct {
+	UserID uint `json:"user_id"`
+	ProductID uint `json:"product_id"`
 }
 
 type CartRequest struct {

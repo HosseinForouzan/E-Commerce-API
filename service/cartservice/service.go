@@ -10,6 +10,9 @@ import (
 type Repository interface {
 	AddItem(req param.AddItemRequest) error
 	GetCart(userID uint) (param.CartResponse, error)
+	UpdateItem(req param.UpdateItemRequest) error
+	DeleteItem(req param.DeleteItemRequest) error
+	Clear(userID uint) error
 }
 
 type Service struct {
@@ -63,4 +66,31 @@ func (s Service) GetCart(req param.CartRequest) (param.CartResponse, error) {
 	resp.Total = uint(total)
 
 	return resp, nil
+}
+
+func (s Service) UpdateItem(req param.UpdateItemRequest) error {
+	proudct, err := s.ProductRepo.GetProductByID(req.ProductID)
+	if err != nil {
+		return  fmt.Errorf("unexpected error: %w", err)
+	}
+
+	if proudct.Stock < req.Quantity {
+		return  fmt.Errorf("not enough quantity.")
+	}
+
+	if err != nil {
+		return  fmt.Errorf("unexpected error: %w", err)
+	}
+
+	return s.CartRepo.UpdateItem(req)
+}
+
+func (s Service) DeleteItem(req param.DeleteItemRequest) error {
+	
+	return s.CartRepo.DeleteItem(req)
+}
+
+func (s Service) Clear(userID uint) error {
+
+	return s.CartRepo.Clear(userID)
 }

@@ -57,3 +57,36 @@ func (d *DB) GetCart(userID uint) (param.CartResponse, error) {
 	}, nil
 
 }
+
+func (d *DB) UpdateItem(req param.UpdateItemRequest) error {
+	query := `UPDATE cart_items SET quantity=$1 
+				WHERE user_id=$2 AND product_id=$3 `
+	_, err := d.conn.Conn().Exec(context.Background(), query, req.Quantity, req.UserID, req.ProductID)
+	if err != nil {
+		return fmt.Errorf("can't update item: %w", err)
+	}
+
+	return nil
+}
+
+func (d *DB) DeleteItem(req param.DeleteItemRequest) error {
+	query := `DELETE FROM cart_items
+				WHERE user_id = $1 AND product_id = $2 `
+	_, err := d.conn.Conn().Exec(context.Background(), query, req.UserID, req.ProductID)
+	if err != nil {
+		return fmt.Errorf("can't delete item: %w", err)
+	}
+
+	return nil
+}
+
+func (d *DB) Clear(userID uint) error {
+	query := `DELETE FROM cart_items WHERE user_id = $1`
+
+	_, err := d.conn.Conn().Exec(context.Background(), query, userID)
+	if err != nil {
+		return fmt.Errorf("can't delete item: %w", err)
+	}
+
+	return nil
+}
