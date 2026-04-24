@@ -12,6 +12,10 @@ type UpdateItemRequest struct {
 	Quantity uint `json:"quantity"`
 }
 
+type CartRequest struct {
+	UserID uint `json:"user_id"`
+}
+
 type CartItemResponse struct {
 	ProductID uint   `json:"product_id"`
 	Name      string `json:"name"`
@@ -22,5 +26,5 @@ type CartItemResponse struct {
 
 type CartResponse struct {
 	Items []CartItemResponse `json:"items"`
-	Total int                `json:"total"`
+	Total uint             `json:"total"`
 }

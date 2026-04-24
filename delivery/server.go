@@ -62,6 +62,8 @@ func (s Server) SetRoutes() {
 	e.DELETE("/products/:id", s.DeleteProduct)
 
 	e.POST("/cart/items", s.AddItem, mw.Auth(s.authSvc, s.config.Auth))
+	e.GET("/cart", s.GetCart, mw.Auth(s.authSvc, s.config.Auth))
+	
 
 
 

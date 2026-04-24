@@ -23,3 +23,16 @@ func (s Server) AddItem(c echo.Context) error {
 
 	return c.JSON(http.StatusCreated, echo.Map{"message" : "item created."})
 }
+
+func (s Server) GetCart(c echo.Context) error {
+	var req param.CartRequest
+	claims := c.Get("claims").(*authservice.Claims)
+	req.UserID = claims.UserID
+
+	resp, err := s.cartSvc.GetCart(req)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+
+	return c.JSON(http.StatusOK, resp)
+}

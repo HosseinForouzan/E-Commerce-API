@@ -9,6 +9,7 @@ import (
 
 type Repository interface {
 	AddItem(req param.AddItemRequest) error
+	GetCart(userID uint) (param.CartResponse, error)
 }
 
 type Service struct {
@@ -36,4 +37,30 @@ func (s Service) AddItem(req param.AddItemRequest) (error) {
 
 	return s.CartRepo.AddItem(req)
 
+}
+
+func (s Service) GetCart(req param.CartRequest) (param.CartResponse, error) {
+	rows, err := s.CartRepo.GetCart(req.UserID)
+	if err != nil {
+		return param.CartResponse{}, fmt.Errorf("unexpected error: %w", err)
+	}
+
+	resp := param.CartResponse{}
+	total := 0
+
+	for _, row := range rows.Items {
+		subTotal := row.Price * row.Quantity
+		total += int(subTotal)
+
+		resp.Items = append(resp.Items, param.CartItemResponse{
+			ProductID: row.ProductID,
+			Name: row.Name,
+			Price: row.Price,
+			Quantity: row.Quantity,
+			Subtotal: subTotal,
+		})
+	}
+	resp.Total = uint(total)
+
+	return resp, nil
 }
