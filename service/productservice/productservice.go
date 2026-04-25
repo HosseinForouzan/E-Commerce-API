@@ -1,10 +1,12 @@
 package productservice
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/HosseinForouzan/E-Commerce-API/entity"
 	"github.com/HosseinForouzan/E-Commerce-API/param"
+	"github.com/jackc/pgx/v5"
 )
 
 type Repository interface {
@@ -14,6 +16,7 @@ type Repository interface {
 	CreateCategory(c entity.Category) (entity.Category, error)
 	UpdateProduct(p entity.Product)(entity.Product, error)
 	DeleteProduct(id uint) error
+	DecreaseStockTx(ctx context.Context, tx pgx.Tx, productID uint, quantity uint) error
 }
 
 type Service struct {

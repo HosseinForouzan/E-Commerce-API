@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/HosseinForouzan/E-Commerce-API/param"
+	"github.com/jackc/pgx/v5"
 )
 
 func (d *DB) AddItem(req param.AddItemRequest) error {
@@ -90,3 +91,55 @@ func (d *DB) Clear(userID uint) error {
 
 	return nil
 }
+
+func (d *DB) GetItemsTx(ctx context.Context, tx pgx.Tx, userID uint) (param.CartResponse, error) {
+	query := `SELECT
+			c.product_id,
+			c.quantity,
+			p.name,
+			p.price
+		FROM cart_items c
+		JOIN products p ON p.id = c.product_id
+		WHERE c.user_id = $1;`
+		
+	rows, err := tx.Query(ctx,
+							query, userID)	
+	if err != nil {
+		return param.CartResponse{}, fmt.Errorf("can't get items: %w", err)
+	}
+
+	items := []param.CartItemResponse{}
+
+	for rows.Next() {
+		var item param.CartItemResponse
+		err := rows.Scan(
+			&item.ProductID,
+			&item.Quantity,
+			&item.Name,
+			&item.Price,
+		)
+		if err != nil {
+			return param.CartResponse{}, fmt.Errorf("can't scan items: %w", err)
+		}
+		items = append(items, item)
+
+	}
+
+	return param.CartResponse{
+		Items: items,
+		Total: 0,
+	}, nil
+
+}
+
+func (d *DB) ClearTx(ctx context.Context, tx pgx.Tx, userID uint) error {
+	query := `DELETE FROM cart_items WHERE user_id = $1`
+
+	_, err := tx.Exec(ctx, query, userID)
+	if err != nil {
+		return fmt.Errorf("can't delete item: %w", err)
+	}
+
+	return nil
+}
+

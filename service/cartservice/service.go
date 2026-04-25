@@ -1,10 +1,12 @@
 package cartservice
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/HosseinForouzan/E-Commerce-API/param"
 	"github.com/HosseinForouzan/E-Commerce-API/service/productservice"
+	"github.com/jackc/pgx/v5"
 )
 
 type Repository interface {
@@ -13,6 +15,8 @@ type Repository interface {
 	UpdateItem(req param.UpdateItemRequest) error
 	DeleteItem(req param.DeleteItemRequest) error
 	Clear(userID uint) error
+	GetItemsTx(ctx context.Context, tx pgx.Tx, userID uint) (param.CartResponse, error)
+	ClearTx(ctx context.Context, tx pgx.Tx, userID uint) error
 }
 
 type Service struct {

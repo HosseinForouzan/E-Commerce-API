@@ -8,11 +8,13 @@ import (
 	"github.com/HosseinForouzan/E-Commerce-API/repository/psql"
 	psqlaccesscontrol "github.com/HosseinForouzan/E-Commerce-API/repository/psql/psqlAccessControl"
 	"github.com/HosseinForouzan/E-Commerce-API/repository/psql/psqlcart"
+	"github.com/HosseinForouzan/E-Commerce-API/repository/psql/psqlorder"
 	"github.com/HosseinForouzan/E-Commerce-API/repository/psql/psqlproduct"
 	"github.com/HosseinForouzan/E-Commerce-API/repository/psql/psqluser"
 	"github.com/HosseinForouzan/E-Commerce-API/service/authorizationservice"
 	"github.com/HosseinForouzan/E-Commerce-API/service/authservice"
 	"github.com/HosseinForouzan/E-Commerce-API/service/cartservice"
+	"github.com/HosseinForouzan/E-Commerce-API/service/orderservice"
 	"github.com/HosseinForouzan/E-Commerce-API/service/productservice"
 	"github.com/HosseinForouzan/E-Commerce-API/service/userservice"
 )
@@ -52,28 +54,33 @@ func main() {
 
 
 
-	authSvc, userSvc, productSvc, authorizationSvc, cartSvc := setupServices(cfg)
+	authSvc, userSvc, productSvc, authorizationSvc, cartSvc, orderSvc := setupServices(cfg)
 
-	server := delivery.New(cfg, authSvc, userSvc, productSvc, authorizationSvc, cartSvc)
+	server := delivery.New(cfg, authSvc, userSvc, productSvc, authorizationSvc, cartSvc, orderSvc)
 	server.SetRoutes()
 
 }
 
 
 func setupServices(cfg config.Config) (authservice.Service, userservice.Service,
-	 productservice.Service, authorizationservice.Service, cartservice.Service) {
+	 productservice.Service, authorizationservice.Service, cartservice.Service, orderservice.Service) {
 	authSvc := authservice.New(cfg.Auth)
 
+	psqlPool := psql.NewPgxPool(cfg.Psql)
 	psql := psql.New(cfg.Psql)
 	PsqlUserRepo := psqluser.New(psql)
 	PsqlProductRepo := psqlproduct.New(psql)
 	psqlAccessRepo := psqlaccesscontrol.New(psql)
 	psqlCartRepo := psqlcart.New(psql)
+	psqlOrderRepo := psqlorder.New(psql)
+
+
 
 	userSvc := userservice.New(PsqlUserRepo, authSvc)
 	productSvc := productservice.New(PsqlProductRepo)
 	authorizationSvc := authorizationservice.New(psqlAccessRepo)
 	cartSvc := cartservice.New(psqlCartRepo, PsqlProductRepo)
+	orderSvc := orderservice.New(psqlOrderRepo, psqlCartRepo, PsqlProductRepo, psqlPool)
 
-	return authSvc, userSvc, productSvc, authorizationSvc, cartSvc
+	return authSvc, userSvc, productSvc, authorizationSvc, cartSvc, orderSvc
 }

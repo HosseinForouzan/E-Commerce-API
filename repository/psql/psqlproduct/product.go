@@ -6,6 +6,7 @@ import (
 
 	"github.com/HosseinForouzan/E-Commerce-API/entity"
 	"github.com/HosseinForouzan/E-Commerce-API/param"
+	"github.com/jackc/pgx/v5"
 )
 
 func (d *DB) GetProducts(p param.ProductRequest) ([] entity.Product, error){
@@ -92,6 +93,31 @@ func (d * DB) DeleteProduct(id uint) error {
 	_, err := d.conn.Conn().Exec(context.Background(), "DELETE FROM products WHERE id = $1", id)
 	if err != nil {
 		return fmt.Errorf("can't delete product: %w", err)
+	}
+
+	return nil
+}
+
+func (d *DB) DecreaseStockTx(ctx context.Context, tx pgx.Tx, productID uint, quantity uint) error {
+	cmd, err := tx.Exec(
+		ctx,
+		`
+		UPDATE products
+		SET stock = stock - $1,
+		    updated_at = NOW()
+		WHERE id = $2
+		  AND stock >= $1
+		`,
+		quantity,
+		productID,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	if cmd.RowsAffected() == 0 {
+		return fmt.Errorf("not enough stock or product not found")
 	}
 
 	return nil
