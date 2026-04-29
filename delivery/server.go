@@ -12,6 +12,7 @@ import (
 	"github.com/HosseinForouzan/E-Commerce-API/service/authservice"
 	"github.com/HosseinForouzan/E-Commerce-API/service/cartservice"
 	"github.com/HosseinForouzan/E-Commerce-API/service/orderservice"
+	"github.com/HosseinForouzan/E-Commerce-API/service/paymentservice"
 	"github.com/HosseinForouzan/E-Commerce-API/service/productservice"
 	"github.com/HosseinForouzan/E-Commerce-API/service/userservice"
 	"github.com/labstack/echo/v4"
@@ -26,11 +27,13 @@ type Server struct {
 	authorizationSvc authorizationservice.Service
 	cartSvc cartservice.Service
 	orderSvc orderservice.Service
+	paymentSvc paymentservice.Service
 }
 
 func New(config config.Config ,authSvc authservice.Service,
 	 userSvc userservice.Service, productSvc productservice.Service,
-	  authorizationSvc authorizationservice.Service, cartSvc cartservice.Service, orderSvc orderservice.Service) Server {
+	  authorizationSvc authorizationservice.Service, cartSvc cartservice.Service,
+	   orderSvc orderservice.Service, paymentSvc paymentservice.Service) Server {
 	return Server{
 		config:config,
 		 authSvc: authSvc,
@@ -39,6 +42,7 @@ func New(config config.Config ,authSvc authservice.Service,
 		  authorizationSvc: authorizationSvc,
 		  cartSvc: cartSvc ,
 		  orderSvc: orderSvc,
+		  paymentSvc: paymentSvc,
 		
 		}
 }
@@ -71,6 +75,16 @@ func (s Server) SetRoutes() {
 	e.DELETE("/cart", s.ClearCart,mw.Auth(s.authSvc, s.config.Auth) )
 
 	e.POST("/checkout", s.Checkout, mw.Auth(s.authSvc, s.config.Auth))
+
+
+	e.POST("/orders/:id/pay", s.StartPayment, mw.Auth(s.authSvc, s.config.Auth))
+
+	e.GET("/payment/mock/:paymentID", s.MockPage)
+
+	e.POST("/payment/mock/:paymentID/success", s.Success)
+	e.POST("/payment/mock/:paymentID/fail", s.Fail)
+
+	e.GET("/payment/callback", s.Callback)
 	
 
 

@@ -9,12 +9,14 @@ import (
 	psqlaccesscontrol "github.com/HosseinForouzan/E-Commerce-API/repository/psql/psqlAccessControl"
 	"github.com/HosseinForouzan/E-Commerce-API/repository/psql/psqlcart"
 	"github.com/HosseinForouzan/E-Commerce-API/repository/psql/psqlorder"
+	"github.com/HosseinForouzan/E-Commerce-API/repository/psql/psqlpayment"
 	"github.com/HosseinForouzan/E-Commerce-API/repository/psql/psqlproduct"
 	"github.com/HosseinForouzan/E-Commerce-API/repository/psql/psqluser"
 	"github.com/HosseinForouzan/E-Commerce-API/service/authorizationservice"
 	"github.com/HosseinForouzan/E-Commerce-API/service/authservice"
 	"github.com/HosseinForouzan/E-Commerce-API/service/cartservice"
 	"github.com/HosseinForouzan/E-Commerce-API/service/orderservice"
+	"github.com/HosseinForouzan/E-Commerce-API/service/paymentservice"
 	"github.com/HosseinForouzan/E-Commerce-API/service/productservice"
 	"github.com/HosseinForouzan/E-Commerce-API/service/userservice"
 )
@@ -54,16 +56,16 @@ func main() {
 
 
 
-	authSvc, userSvc, productSvc, authorizationSvc, cartSvc, orderSvc := setupServices(cfg)
+	authSvc, userSvc, productSvc, authorizationSvc, cartSvc, orderSvc, paymentSvc := setupServices(cfg)
 
-	server := delivery.New(cfg, authSvc, userSvc, productSvc, authorizationSvc, cartSvc, orderSvc)
+	server := delivery.New(cfg, authSvc, userSvc, productSvc, authorizationSvc, cartSvc, orderSvc, paymentSvc)
 	server.SetRoutes()
 
 }
 
 
 func setupServices(cfg config.Config) (authservice.Service, userservice.Service,
-	 productservice.Service, authorizationservice.Service, cartservice.Service, orderservice.Service) {
+	 productservice.Service, authorizationservice.Service, cartservice.Service, orderservice.Service, paymentservice.Service) {
 	authSvc := authservice.New(cfg.Auth)
 
 	psqlPool := psql.NewPgxPool(cfg.Psql)
@@ -73,6 +75,7 @@ func setupServices(cfg config.Config) (authservice.Service, userservice.Service,
 	psqlAccessRepo := psqlaccesscontrol.New(psql)
 	psqlCartRepo := psqlcart.New(psql)
 	psqlOrderRepo := psqlorder.New(psql)
+	psqlPaymentRepo := psqlpayment.New(psql)
 
 
 
@@ -81,6 +84,7 @@ func setupServices(cfg config.Config) (authservice.Service, userservice.Service,
 	authorizationSvc := authorizationservice.New(psqlAccessRepo)
 	cartSvc := cartservice.New(psqlCartRepo, PsqlProductRepo)
 	orderSvc := orderservice.New(psqlOrderRepo, psqlCartRepo, PsqlProductRepo, psqlPool)
+	paymentSvc := paymentservice.New(psqlPaymentRepo, psqlOrderRepo, psqlPool)
 
-	return authSvc, userSvc, productSvc, authorizationSvc, cartSvc, orderSvc
+	return authSvc, userSvc, productSvc, authorizationSvc, cartSvc, orderSvc, paymentSvc
 }

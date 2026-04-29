@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/HosseinForouzan/E-Commerce-API/entity"
 	"github.com/HosseinForouzan/E-Commerce-API/param"
 	"github.com/HosseinForouzan/E-Commerce-API/service/cartservice"
 	"github.com/HosseinForouzan/E-Commerce-API/service/productservice"
@@ -14,6 +15,8 @@ import (
 type Repository interface {
 	CreateTx(ctx context.Context, tx pgx.Tx, userID uint, total uint) (uint, error)
 	CreateItemTx(ctx context.Context, tx pgx.Tx, orderID uint, item param.CartItemResponse) error
+	GetByID(ctx context.Context, orderID uint, userID uint) (entity.Order, error)
+	MarkPaidTx(ctx context.Context, tx pgx.Tx, orderID uint) error
 }
 
 type Service struct {

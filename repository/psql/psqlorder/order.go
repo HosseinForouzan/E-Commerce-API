@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/HosseinForouzan/E-Commerce-API/entity"
 	"github.com/HosseinForouzan/E-Commerce-API/param"
 	"github.com/jackc/pgx/v5"
 )
@@ -30,4 +31,61 @@ func (d *DB) CreateItemTx(ctx context.Context, tx pgx.Tx, orderID uint, item par
 	}
 
 	return nil
+}
+
+func (d *DB) GetByID(
+	ctx context.Context,
+	orderID uint,
+	userID uint,
+) (entity.Order, error) {
+
+	var o entity.Order
+
+	err := d.conn.Conn().QueryRow(
+		ctx,
+		`
+		SELECT
+			id,
+			user_id,
+			status,
+			total_amount
+		FROM orders
+		WHERE id=$1
+		  AND user_id=$2
+		`,
+		orderID,
+		userID,
+	).Scan(
+		&o.ID,
+		&o.UserID,
+		&o.Status,
+		&o.TotalAmount,
+	)
+
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return entity.Order{}, nil
+		}
+		return entity.Order{}, err
+	}
+
+	return o, nil
+}
+
+func (d *DB) MarkPaidTx(
+	ctx context.Context,
+	tx pgx.Tx,
+	orderID uint,
+) error {
+
+	_, err := tx.Exec(
+		ctx,
+		`
+		UPDATE orders
+		SET status='paid' WHERE id=$1
+		`,
+		orderID,
+	)
+
+	return err
 }
